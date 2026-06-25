@@ -1,6 +1,6 @@
 // Utilidades compartidas para UI, formato, fechas y catalogos base.
 const FinanceUtils = {
-  APP_NAME: 'CapitalFlow',
+  APP_NAME: 'RUMBO',
   APP_TAGLINE: 'Tu dinero, tu control',
 
   COLORS: {
@@ -29,7 +29,7 @@ const FinanceUtils = {
 
   DEFAULT_CATEGORIES: {
     Gasto: [
-      'Super / Comida en casa',
+      'Super',
       'Comida fuera',
       'Transporte',
       'Impuestos',
@@ -41,9 +41,10 @@ const FinanceUtils = {
       'Ropa',
       'Salud / bienestar',
       'Regalos / familia',
+      'Renta',
       'Otra'
     ],
-    Ingreso: ['Salario', 'Freelance', 'Bonus', 'Reembolsos', 'Otro Ingreso'],
+    Ingreso: ['Salario', 'Freelance', 'Bono', 'Reembolsos', 'Otro Ingreso'],
     'Inversión': ['GBM', 'Otra Inversión', 'Ahorro', 'CETES'],
     Transferencia: ['Renta', 'Crédito', 'Servicio Casa', 'Otro']
   },
