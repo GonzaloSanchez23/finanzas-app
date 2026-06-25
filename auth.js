@@ -41,7 +41,13 @@ class AuthManager {
     const { email, password } = this.getAuthValues();
     this.setAuthLoading(true, 'Creando cuenta...');
 
-    const { error } = await this.supabase.auth.signUp({ email, password });
+    const { error } = await this.supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin + window.location.pathname
+      }
+    });
     this.setAuthLoading(false);
 
     if (error) {
@@ -132,10 +138,13 @@ class AuthManager {
 
   friendlyAuthError(error) {
     const message = error?.message?.toLowerCase() || '';
+    console.error('Supabase Auth error:', error);
     if (message.includes('invalid login')) return 'Email o password incorrectos.';
     if (message.includes('already registered')) return 'Ese email ya tiene una cuenta.';
+    if (message.includes('rate limit') || message.includes('too many')) return 'Supabase limito los correos por ahora. Espera unos minutos e intenta otra vez.';
+    if (message.includes('sending confirmation') || message.includes('send')) return 'Supabase no pudo mandar el correo de confirmacion. Revisa la configuracion de Auth/SMTP.';
+    if (message.includes('invalid email') || message.includes('email address')) return 'Revisa que el email este bien escrito.';
     if (message.includes('password')) return 'Revisa que el password tenga al menos 6 caracteres.';
-    if (message.includes('email')) return 'Revisa que el email este bien escrito.';
     return 'No pudimos completar la accion. Intenta de nuevo.';
   }
 }
