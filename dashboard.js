@@ -216,11 +216,11 @@ class DashboardModule {
             <tbody>
               ${latest.map((item) => `
                 <tr class="movement-row" data-id="${item.id || ''}" tabindex="0">
-                  <td>${FinanceUtils.formatDate(item.fecha, { day: '2-digit', month: 'long' })}</td>
-                  <td><span class="type-pill ${FinanceUtils.getTypeClass(item.tipo)}">${FinanceUtils.escapeHtml(item.tipo)}</span></td>
-                  <td>${FinanceUtils.escapeHtml(item.categoria)}</td>
-                  <td>${FinanceUtils.formatMoney(item.monto)}</td>
-                  <td>${this.isFixed(item) ? 'Si' : '-'}</td>
+                  <td data-label="Fecha">${FinanceUtils.formatDate(item.fecha, { day: '2-digit', month: 'long' })}</td>
+                  <td data-label="Tipo"><span class="type-pill ${FinanceUtils.getTypeClass(item.tipo)}">${FinanceUtils.escapeHtml(item.tipo)}</span></td>
+                  <td data-label="Categoria">${FinanceUtils.escapeHtml(item.categoria)}</td>
+                  <td data-label="Monto">${FinanceUtils.formatMoney(item.monto)}</td>
+                  <td data-label="Fijo">${this.isFixed(item) ? 'Si' : '-'}</td>
                 </tr>
               `).join('')}
             </tbody>

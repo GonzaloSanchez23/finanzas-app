@@ -596,6 +596,19 @@ textarea:focus {
 .dashboard {
   display: grid;
   gap: 16px;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.dashboard > *,
+.dashboard .panel,
+.dashboard .panel-header,
+.dashboard .panel-header > *,
+.dashboard .analysis-card,
+.dashboard .budget-comparison {
+  max-width: 100%;
+  min-width: 0;
 }
 
 .dashboard-toolbar {
@@ -603,12 +616,15 @@ textarea:focus {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
 }
 
 .filter-bar {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .filter-btn {
@@ -632,6 +648,7 @@ textarea:focus {
   gap: 10px;
   align-items: center;
   text-align: center;
+  min-width: 0;
 }
 
 .month-nav strong {
@@ -642,9 +659,12 @@ textarea:focus {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .kpi-card {
+  min-width: 0;
   min-height: 112px;
   padding: 16px;
   border: 1px solid rgba(216, 222, 232, 0.9);
@@ -667,27 +687,32 @@ textarea:focus {
   display: block;
   font-size: 24px;
   line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
 .budget-bars {
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 
 .budget-bar {
   display: grid;
   gap: 7px;
+  min-width: 0;
 }
 
 .budget-bar-top {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
 }
 
 .budget-bar-top span {
   color: var(--muted);
   text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .progress {
@@ -726,6 +751,15 @@ textarea:focus {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
+}
+
+.analysis-lines span,
+.analysis-lines strong,
+.pie-detail span,
+.pie-detail b {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .big-stat {
@@ -741,6 +775,17 @@ textarea:focus {
 .chart-box {
   position: relative;
   height: 290px;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chart-box canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
 }
 
 .pie-detail {
@@ -757,6 +802,7 @@ textarea:focus {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
 }
 
 .empty-detail {
@@ -764,8 +810,11 @@ textarea:focus {
 }
 
 .table-wrap {
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
   border-radius: var(--radius);
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
@@ -963,6 +1012,10 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .dashboard-toolbar #export-pdf-btn {
+    display: none;
+  }
+
   .filter-bar {
     display: flex;
     gap: 8px;
@@ -1010,8 +1063,57 @@ textarea:focus {
     -webkit-overflow-scrolling: touch;
   }
 
-  .table {
-    min-width: 620px;
+  .dashboard .table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard .table thead {
+    display: none;
+  }
+
+  .dashboard .table tbody {
+    display: grid;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .dashboard .table tr {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #ffffff;
+  }
+
+  .dashboard .table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border-bottom: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .dashboard .table td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 850;
+    text-transform: uppercase;
+    text-align: left;
+  }
+
+  .dashboard .table td > * {
+    min-width: 0;
   }
 
   .login-box {
