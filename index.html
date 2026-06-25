@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#667eea">
+  <meta name="description" content="Aplicacion mobile-first para finanzas personales con Supabase.">
+  <title>💰 Mis Finanzas</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E💰%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- La app completa se renderiza aqui desde auth.js y app.js. -->
+  <div id="app" aria-live="polite"></div>
+  <div id="toast-container" class="toast-container" aria-live="assertive"></div>
+
+  <!-- Librerias externas: Supabase para auth/BD y Chart.js para Fase 3. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+  <!-- Scripts locales de la aplicacion. -->
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.authManager = new AuthManager(window.supabaseClient);
+      window.authManager.checkAuthAndShowApp();
+    });
+  </script>
+</body>
+</html>
