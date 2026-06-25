@@ -13,6 +13,11 @@ class AuthManager {
           <p>Controla tus gastos, ingresos y tendencias con una app privada para ustedes.</p>
           <form id="auth-form" class="form-grid" novalidate>
             <div class="form-group full">
+              <label for="auth-name">Nombre</label>
+              <input id="auth-name" type="text" autocomplete="name" placeholder="Gonzalo Sánchez">
+              <span class="field-error" id="name-error"></span>
+            </div>
+            <div class="form-group full">
               <label for="auth-email">Email</label>
               <input id="auth-email" type="email" autocomplete="email" placeholder="test@example.com" required>
               <span class="field-error" id="email-error"></span>
@@ -38,14 +43,17 @@ class AuthManager {
 
   async signup() {
     if (!this.validateAuthForm()) return;
-    const { email, password } = this.getAuthValues();
+    const { email, password, name } = this.getAuthValues();
     this.setAuthLoading(true, 'Creando cuenta...');
 
     const { error } = await this.supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin + window.location.pathname
+        emailRedirectTo: window.location.origin + window.location.pathname,
+        data: {
+          full_name: name || FinanceUtils.getUserDisplayName({ email })
+        }
       }
     });
     this.setAuthLoading(false);
@@ -104,6 +112,7 @@ class AuthManager {
 
   getAuthValues() {
     return {
+      name: document.getElementById('auth-name').value.trim(),
       email: document.getElementById('auth-email').value.trim(),
       password: document.getElementById('auth-password').value
     };
@@ -111,6 +120,7 @@ class AuthManager {
 
   validateAuthForm() {
     const { email, password } = this.getAuthValues();
+    document.getElementById('name-error').textContent = '';
     document.getElementById('email-error').textContent = '';
     document.getElementById('password-error').textContent = '';
     let isValid = true;
