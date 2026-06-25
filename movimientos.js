@@ -1,4 +1,4 @@
-// Modulo de registro de movimientos: UX de captura rapida y validaciones claras.
+// Modulo de registro de movimientos: captura rapida y mobile-first.
 class MovimientosModule {
   constructor(app) {
     this.app = app;
@@ -9,13 +9,12 @@ class MovimientosModule {
   }
 
   render() {
-    const today = FinanceUtils.toDateInputValue();
     return `
       <section class="panel fade-panel" aria-labelledby="movement-title">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Nuevo registro</p>
-            <h2 id="movement-title">Registrar Movimiento</h2>
+            <h2 id="movement-title">Movimientos</h2>
           </div>
         </div>
 
@@ -32,7 +31,7 @@ class MovimientosModule {
             <span class="field-error" id="tipo-error"></span>
           </div>
 
-          <div class="form-grid">
+          <div class="form-grid compact-form-grid">
             ${this.renderSmartSelect({
               id: 'category',
               label: 'Categoría',
@@ -44,7 +43,7 @@ class MovimientosModule {
 
             ${this.renderSmartSelect({
               id: 'payment',
-              label: 'Método de pago',
+              label: 'Método de Pago',
               placeholder: 'Busca método...',
               selected: this.selectedMethod,
               items: this.paymentMethods,
@@ -58,12 +57,6 @@ class MovimientosModule {
                 <input id="monto" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
               </div>
               <span class="field-error" id="monto-error"></span>
-            </div>
-
-            <div class="form-group">
-              <label class="field-label" for="fecha">Fecha</label>
-              <input id="fecha" type="date" max="${today}" value="${today}" required>
-              <span class="field-error" id="fecha-error"></span>
             </div>
           </div>
 
@@ -80,13 +73,7 @@ class MovimientosModule {
             </label>
           </div>
 
-          <div class="form-group">
-            <label class="field-label" for="comentarios">Comentarios</label>
-            <textarea id="comentarios" maxlength="200" placeholder="Nota opcional, máximo 200 caracteres"></textarea>
-            <small id="comment-counter">0/200</small>
-          </div>
-
-          <button class="button button-primary button-full button-tall" id="save-movement-btn" type="submit">Guardar Movimiento</button>
+          <button class="button button-action button-full button-tall" id="save-movement-btn" type="submit">Guardar</button>
         </form>
       </section>
     `;
@@ -96,9 +83,6 @@ class MovimientosModule {
     this.bindTypeSelector();
     this.bindSmartSelect('category');
     this.bindSmartSelect('payment');
-    document.getElementById('comentarios').addEventListener('input', (event) => {
-      document.getElementById('comment-counter').textContent = `${event.target.value.length}/200`;
-    });
     document.getElementById('movement-form').addEventListener('submit', (event) => {
       event.preventDefault();
       this.saveMovement();
@@ -122,13 +106,15 @@ class MovimientosModule {
       : new Set(FinanceUtils.DEFAULT_PAYMENT_METHODS.map((method) => FinanceUtils.normalize(method)));
     return `
       <div class="form-group smart-select" data-smart="${id}">
-        <label class="field-label" for="${id}-search">${label}</label>
+        <div class="field-row">
+          <label class="field-label" for="${id}-search">${label}</label>
+          <button class="inline-add" id="${id}-add" type="button">${addLabel}</button>
+        </div>
         <input id="${id}-search" type="text" autocomplete="off" placeholder="${placeholder}" value="${FinanceUtils.escapeHtml(selected)}">
         <input id="${id}-value" type="hidden" value="${FinanceUtils.escapeHtml(selected)}">
         <div class="select-list" id="${id}-list">
           ${items.map((item) => this.renderSelectItem(id, item, defaultSet.has(FinanceUtils.normalize(item)))).join('')}
         </div>
-        <button class="inline-add" id="${id}-add" type="button">${addLabel}</button>
         <span class="field-error" id="${id}-error"></span>
       </div>
     `;
@@ -258,7 +244,7 @@ class MovimientosModule {
       if (!this.getCategoryOptions().some((item) => FinanceUtils.normalize(item) === FinanceUtils.normalize(values.categoria))) {
         await this.app.api.createCategory(values.categoria, values.tipo);
       }
-      FinanceUtils.showToast('✓ Movimiento guardado', 'success');
+      FinanceUtils.showToast('Movimiento guardado', 'success');
       await this.app.refreshData(false);
       this.resetForm();
     } catch (error) {
@@ -275,10 +261,10 @@ class MovimientosModule {
       categoria: document.getElementById('category-value').value.trim(),
       metodo_pago: document.getElementById('payment-value').value.trim(),
       monto: Number(document.getElementById('monto').value),
-      fecha: document.getElementById('fecha').value,
+      fecha: FinanceUtils.toDateInputValue(new Date()),
       es_impulsivo: document.getElementById('es-impulsivo').checked,
       es_fijo: document.getElementById('es-fijo').checked,
-      comentarios: document.getElementById('comentarios').value.trim()
+      comentarios: ''
     };
   }
 
@@ -288,18 +274,16 @@ class MovimientosModule {
     if (!values.categoria) errors.category = 'Este campo es requerido.';
     if (!values.metodo_pago) errors.payment = 'Este campo es requerido.';
     if (!values.monto || Number.isNaN(values.monto) || values.monto <= 0) errors.monto = 'El monto debe ser mayor a cero.';
-    if (!values.fecha) errors.fecha = 'Este campo es requerido.';
-    if (values.fecha > FinanceUtils.toDateInputValue()) errors.fecha = 'La fecha no puede ser futura.';
     return errors;
   }
 
   renderErrors(errors) {
-    ['tipo', 'category', 'payment', 'monto', 'fecha'].forEach((field) => {
+    ['tipo', 'category', 'payment', 'monto'].forEach((field) => {
       const errorEl = document.getElementById(`${field}-error`);
       if (errorEl) errorEl.textContent = errors[field] || '';
     });
-    ['category', 'payment', 'monto', 'fecha'].forEach((field) => {
-      const input = document.getElementById(field === 'monto' ? 'monto' : field === 'fecha' ? 'fecha' : `${field}-search`);
+    ['category', 'payment', 'monto'].forEach((field) => {
+      const input = document.getElementById(field === 'monto' ? 'monto' : `${field}-search`);
       if (input) input.classList.toggle('is-invalid', Boolean(errors[field]));
     });
   }
@@ -307,7 +291,7 @@ class MovimientosModule {
   setLoading(isLoading) {
     const button = document.getElementById('save-movement-btn');
     button.disabled = isLoading;
-    button.innerHTML = isLoading ? '<span class="loading-spinner"></span>Guardando...' : 'Guardar Movimiento';
+    button.innerHTML = isLoading ? '<span class="loading-spinner"></span>Guardando...' : 'Guardar';
   }
 
   resetForm() {

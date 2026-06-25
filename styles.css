@@ -85,6 +85,22 @@ button:disabled {
   text-align: center;
 }
 
+.app-mark {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: #e8eef6;
+  font-size: 28px;
+}
+
+.auth-actions {
+  display: grid;
+  gap: 12px;
+}
+
 .app-shell {
   min-height: 100vh;
 }
@@ -370,12 +386,20 @@ textarea:focus {
 }
 
 .inline-add {
-  min-height: 36px;
+  min-height: 28px;
   width: fit-content;
   border: 0;
   color: var(--primary);
   background: transparent;
+  font-size: 13px;
   font-weight: 800;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .money-input {
@@ -470,6 +494,35 @@ textarea:focus {
 .button-secondary {
   color: var(--primary);
   background: #e8eef6;
+}
+
+.button-outline {
+  border: 1px solid rgba(26, 54, 93, 0.32);
+  color: var(--primary);
+  background: #ffffff;
+}
+
+.button-link,
+.forgot-link {
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 800;
+}
+
+.forgot-link {
+  justify-self: end;
+  min-height: 32px;
+  font-size: 13px;
+}
+
+.button-action {
+  color: #ffffff;
+  background: var(--success);
+}
+
+.button-action:hover {
+  background: #059669;
 }
 
 .button-ghost {
@@ -690,6 +743,26 @@ textarea:focus {
   height: 290px;
 }
 
+.pie-detail {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #f8fafc;
+}
+
+.pie-detail div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.empty-detail {
+  color: var(--muted);
+}
+
 .table-wrap {
   overflow-x: auto;
   border-radius: var(--radius);
@@ -842,6 +915,125 @@ textarea:focus {
 
   .filter-bar {
     grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .navbar {
+    align-items: flex-start;
+    padding: 12px 14px;
+  }
+
+  .brand strong {
+    font-size: 18px;
+  }
+
+  .user-block {
+    gap: 8px;
+  }
+
+  .main-container {
+    max-width: 100%;
+    padding: 12px;
+    overflow-x: hidden;
+  }
+
+  .primary-nav,
+  .dashboard,
+  .budget-layout,
+  .analysis-grid,
+  .chart-grid,
+  .kpi-container,
+  .month-nav {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .panel {
+    width: 100%;
+    padding: 14px;
+  }
+
+  .dashboard-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-btn {
+    flex: 0 0 auto;
+    min-width: 112px;
+    padding: 0 12px;
+    scroll-snap-align: start;
+  }
+
+  .kpi-card {
+    width: 100%;
+    min-height: 96px;
+  }
+
+  .chart-box {
+    height: 230px;
+  }
+
+  .budget-bar-top {
+    display: grid;
+    gap: 4px;
+  }
+
+  .budget-bar-top span {
+    text-align: left;
+  }
+
+  .analysis-lines div,
+  .pie-detail div,
+  .detail-list div {
+    display: grid;
+    gap: 2px;
+  }
+
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 620px;
+  }
+
+  .login-box {
+    padding: 24px 18px;
+  }
+}
+
+@media (max-width: 390px) {
+  .main-container {
+    padding: 10px;
+  }
+
+  .type-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-box {
+    height: 210px;
+  }
+
+  .kpi-card strong {
+    font-size: 21px;
   }
 }
 

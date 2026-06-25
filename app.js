@@ -13,6 +13,8 @@ class AppManager {
     this.movements = [];
     this.categories = [];
     this.budgets = [];
+    this.profile = null;
+    this.profileManager = new UserProfileManager(this);
     this.modules = {
       movimientos: new MovimientosModule(this),
       presupuestos: new PresupuestosModule(this),
@@ -21,20 +23,26 @@ class AppManager {
   }
 
   async init() {
+    await this.refreshData();
     this.renderShell();
     this.bindShellEvents();
-    await this.refreshData();
     this.renderActiveTab();
+    const profile = await this.profileManager.ensureProfile();
+    if (profile) {
+      this.renderShell();
+      this.bindShellEvents();
+      this.renderActiveTab();
+    }
   }
 
   renderShell() {
-    const displayName = FinanceUtils.getUserDisplayName(this.user);
+    const displayName = FinanceUtils.getUserDisplayName(this.user, this.profile);
     this.app.innerHTML = `
       <div class="app-shell">
         <header class="navbar">
           <div class="brand">
-            <strong>Mis Finanzas</strong>
-            <span>Finanzas personales</span>
+            <strong>${FinanceUtils.APP_NAME}</strong>
+            <span>${FinanceUtils.APP_TAGLINE}</span>
           </div>
           <div class="user-block">
             <div>
@@ -49,7 +57,7 @@ class AppManager {
 
         <main class="main-container">
           <nav class="primary-nav" aria-label="Pantallas principales">
-            <button class="nav-button active" data-tab="movimientos" type="button">Registrar Movimiento</button>
+            <button class="nav-button active" data-tab="movimientos" type="button">Movimientos</button>
             <button class="nav-button" data-tab="presupuestos" type="button">Presupuestos</button>
             <button class="nav-button" data-tab="dashboard" type="button">Dashboard</button>
           </nav>
@@ -60,6 +68,7 @@ class AppManager {
       </div>
     `;
     this.updateOfflineBanner();
+    this.updateNavState();
   }
 
   bindShellEvents() {

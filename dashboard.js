@@ -12,7 +12,6 @@ class DashboardModule {
     const monthMovements = this.getMonthMovements(movements, this.app.currentYear, this.app.currentMonth);
     const yearMovements = movements.filter((item) => new Date(`${item.fecha}T00:00:00`).getFullYear() === this.app.currentYear);
     const stats = this.calculateStats(monthMovements, yearMovements);
-
     setTimeout(() => this.renderCharts(monthMovements), 0);
 
     return `
@@ -33,7 +32,7 @@ class DashboardModule {
 
         <div class="month-nav panel">
           <button class="button button-secondary" id="prev-month" type="button">&lt; Anterior</button>
-          <strong>${FinanceUtils.getFriendlyMonth(this.app.currentYear, this.app.currentMonth)}</strong>
+          <strong>${FinanceUtils.getMonthName(this.app.currentMonth, this.app.currentYear)}</strong>
           <button class="button button-secondary" id="next-month" type="button" ${this.isCurrentMonth() ? 'disabled' : ''}>Siguiente &gt;</button>
         </div>
 
@@ -51,17 +50,18 @@ class DashboardModule {
           <article class="panel">
             <div class="panel-header compact">
               <div>
-                <p class="eyebrow">Categorías</p>
-                <h3>Distribución del mes</h3>
+                <p class="eyebrow">Categorias</p>
+                <h3>Distribucion del mes</h3>
               </div>
             </div>
             <div class="chart-box"><canvas id="category-pie"></canvas></div>
+            <div id="pie-detail" class="pie-detail empty-detail">Toca una categoria para ver detalle.</div>
           </article>
           <article class="panel">
             <div class="panel-header compact">
               <div>
                 <p class="eyebrow">Tendencia</p>
-                <h3>Últimos 6 meses</h3>
+                <h3>Ultimos 6 meses</h3>
               </div>
             </div>
             <div class="chart-box"><canvas id="trend-line"></canvas></div>
@@ -104,7 +104,7 @@ class DashboardModule {
     const className = stats.difference > 0 ? 'trend-up' : stats.difference < 0 ? 'trend-down' : 'trend-flat';
     const arrow = stats.difference > 0 ? '↑' : stats.difference < 0 ? '↓' : '→';
     const label = stats.monthlyAverage > 0
-      ? `${arrow} ${Math.abs(stats.difference).toFixed(0)}% ${stats.difference > 0 ? 'arriba' : stats.difference < 0 ? 'abajo' : 'en línea'}`
+      ? `${arrow} ${Math.abs(stats.difference).toFixed(0)}% ${stats.difference > 0 ? 'arriba' : stats.difference < 0 ? 'abajo' : 'en linea'}`
       : 'Sin promedio';
     return `
       <article class="kpi-card" style="--accent: ${stats.typeColor}">
@@ -123,8 +123,8 @@ class DashboardModule {
       <section class="panel budget-comparison">
         <div class="panel-header compact">
           <div>
-            <p class="eyebrow">Control de límites</p>
-            <h3>Gastos vs Presupuestos (${FinanceUtils.getFriendlyMonth(this.app.currentYear, this.app.currentMonth)})</h3>
+            <p class="eyebrow">Control de limites</p>
+            <h3>Gastos vs Presupuestos (${FinanceUtils.getMonthName(this.app.currentMonth, this.app.currentYear)})</h3>
           </div>
         </div>
         <div class="budget-bars">
@@ -139,9 +139,9 @@ class DashboardModule {
     const limit = Number(budget.monto_limite) || 0;
     const percent = limit > 0 ? (spent / limit) * 100 : 0;
     const capped = Math.min(100, percent);
-    const status = percent >= 100 ? { label: '✕ Excedido', className: 'danger' }
-      : percent >= 80 ? { label: '⚠ Límite', className: 'warning' }
-      : { label: '✓ Bien', className: 'success' };
+    const status = percent >= 100 ? { label: 'Excedido', className: 'danger' }
+      : percent >= 80 ? { label: 'Limite', className: 'warning' }
+      : { label: 'Bien', className: 'success' };
 
     return `
       <article class="budget-bar ${status.className}">
@@ -176,9 +176,9 @@ class DashboardModule {
           </div>
         </article>
         <article class="panel analysis-card">
-          <p class="eyebrow">Concentración</p>
-          <h3>Mayor Categoría</h3>
-          <strong class="big-stat">${top.category || 'Sin datos'}</strong>
+          <p class="eyebrow">Concentracion</p>
+          <h3>Mayor Categoria</h3>
+          <strong class="big-stat">${FinanceUtils.escapeHtml(top.category || 'Sin datos')}</strong>
           <span>${top.category ? `${FinanceUtils.formatMoney(top.amount)} (${top.percent.toFixed(0)}% de gastos)` : 'Registra gastos para ver resultados'}</span>
         </article>
       </section>
@@ -191,7 +191,7 @@ class DashboardModule {
       .slice(0, 10);
 
     if (!latest.length) {
-      return '<section class="panel"><h3>Últimos 10 movimientos</h3><div class="empty-state">No hay movimientos este mes.</div></section>';
+      return '<section class="panel"><h3>Ultimos 10 movimientos</h3><div class="empty-state">No hay movimientos este mes.</div></section>';
     }
 
     return `
@@ -199,7 +199,7 @@ class DashboardModule {
         <div class="panel-header compact">
           <div>
             <p class="eyebrow">Actividad reciente</p>
-            <h3>Últimos 10 movimientos</h3>
+            <h3>Ultimos 10 movimientos</h3>
           </div>
         </div>
         <div class="table-wrap">
@@ -208,7 +208,7 @@ class DashboardModule {
               <tr>
                 <th>Fecha</th>
                 <th>Tipo</th>
-                <th>Categoría</th>
+                <th>Categoria</th>
                 <th>Monto</th>
                 <th>Fijo?</th>
               </tr>
@@ -216,11 +216,11 @@ class DashboardModule {
             <tbody>
               ${latest.map((item) => `
                 <tr class="movement-row" data-id="${item.id || ''}" tabindex="0">
-                  <td>${FinanceUtils.formatDate(item.fecha, { day: '2-digit', month: 'short' })}</td>
+                  <td>${FinanceUtils.formatDate(item.fecha, { day: '2-digit', month: 'long' })}</td>
                   <td><span class="type-pill ${FinanceUtils.getTypeClass(item.tipo)}">${FinanceUtils.escapeHtml(item.tipo)}</span></td>
                   <td>${FinanceUtils.escapeHtml(item.categoria)}</td>
                   <td>${FinanceUtils.formatMoney(item.monto)}</td>
-                  <td>${this.isFixed(item) ? '✓' : '-'}</td>
+                  <td>${this.isFixed(item) ? 'Si' : '-'}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -239,9 +239,11 @@ class DashboardModule {
   renderPieChart(monthMovements) {
     const canvas = document.getElementById('category-pie');
     if (!canvas || !window.Chart) return;
-    const grouped = this.groupByCategory(monthMovements.filter((item) => item.tipo === 'Gasto'));
+    const expenses = monthMovements.filter((item) => item.tipo === 'Gasto');
+    const grouped = this.groupByCategory(expenses);
     const labels = Object.keys(grouped);
     const values = Object.values(grouped);
+    const total = values.reduce((sum, value) => sum + value, 0);
 
     if (!labels.length) {
       canvas.closest('.chart-box').innerHTML = '<div class="empty-state">Sin gastos para graficar.</div>';
@@ -260,12 +262,31 @@ class DashboardModule {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        onClick: (_event, elements) => {
+          if (!elements.length) return;
+          const index = elements[0].index;
+          this.updatePieDetail(labels[index], values[index], total, expenses);
+        },
         plugins: {
           legend: { position: 'bottom' },
           tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${FinanceUtils.formatMoney(ctx.raw)}` } }
         }
       }
     });
+  }
+
+  updatePieDetail(category, amount, total, expenses) {
+    const target = document.getElementById('pie-detail');
+    if (!target) return;
+    const movements = expenses.filter((item) => FinanceUtils.normalize(item.categoria) === FinanceUtils.normalize(category));
+    const percent = total ? (amount / total) * 100 : 0;
+    target.classList.remove('empty-detail');
+    target.innerHTML = `
+      <strong>${FinanceUtils.escapeHtml(category)}</strong>
+      <div><span>Monto</span><b>${FinanceUtils.formatMoney(amount)}</b></div>
+      <div><span>Porcentaje</span><b>${percent.toFixed(0)}% del total</b></div>
+      <div><span>Movimientos</span><b>${movements.length}</b></div>
+    `;
   }
 
   renderTrendChart() {
@@ -329,11 +350,10 @@ class DashboardModule {
         <div class="detail-list">
           <div><strong>Fecha</strong><span>${FinanceUtils.formatDate(movement.fecha)}</span></div>
           <div><strong>Tipo</strong><span>${FinanceUtils.escapeHtml(movement.tipo)}</span></div>
-          <div><strong>Categoría</strong><span>${FinanceUtils.escapeHtml(movement.categoria)}</span></div>
-          <div><strong>Método</strong><span>${FinanceUtils.escapeHtml(movement.metodo_pago || this.parseMethod(movement) || '-')}</span></div>
+          <div><strong>Categoria</strong><span>${FinanceUtils.escapeHtml(movement.categoria)}</span></div>
+          <div><strong>Metodo</strong><span>${FinanceUtils.escapeHtml(movement.metodo_pago || this.parseMethod(movement) || '-')}</span></div>
           <div><strong>Monto</strong><span>${FinanceUtils.formatMoney(movement.monto)}</span></div>
-          <div><strong>Fijo</strong><span>${this.isFixed(movement) ? 'Sí' : 'No'}</span></div>
-          <div><strong>Comentarios</strong><span>${FinanceUtils.escapeHtml(movement.comentarios || 'Sin comentarios')}</span></div>
+          <div><strong>Fijo</strong><span>${this.isFixed(movement) ? 'Si' : 'No'}</span></div>
         </div>
       `,
       confirmText: 'Cerrar',
@@ -423,7 +443,7 @@ class DashboardModule {
       const expenses = this.getMonthMovements(this.app.movements, date.getFullYear(), date.getMonth() + 1)
         .filter((item) => item.tipo === 'Gasto');
       return {
-        label: FinanceUtils.getFriendlyMonth(date.getFullYear(), date.getMonth() + 1),
+        label: FinanceUtils.getMonthName(date.getMonth() + 1, date.getFullYear()).replace(` ${date.getFullYear()}`, ''),
         value: this.sum(expenses)
       };
     });

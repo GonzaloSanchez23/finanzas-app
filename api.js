@@ -1,8 +1,35 @@
-// Capa API: aisla Supabase y permite compatibilidad con columnas que aun no existan.
+// Capa API: aisla Supabase y mantiene el resto de la app limpio.
 class FinanceApi {
   constructor(supabaseClient, user) {
     this.supabase = supabaseClient;
     this.user = user;
+  }
+
+  async getProfile() {
+    const { data, error } = await this.supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('user_id', this.user.id)
+      .maybeSingle();
+    if (error) {
+      console.warn('Perfil no disponible:', error);
+      return null;
+    }
+    return data;
+  }
+
+  async upsertProfile(profile) {
+    const { data, error } = await this.supabase
+      .from('user_profiles')
+      .upsert({
+        user_id: this.user.id,
+        first_name: profile.first_name,
+        last_name: profile.last_name
+      }, { onConflict: 'user_id' })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   }
 
   async getMovements() {
@@ -20,7 +47,6 @@ class FinanceApi {
     const { error } = await this.supabase.from('movimientos').insert(fullPayload);
     if (!error) return;
 
-    // Si la BD todavia no tiene metodo_pago o es_fijo, reintenta con el esquema inicial.
     if (this.isSchemaColumnError(error)) {
       const fallback = {
         user_id: this.user.id,
@@ -137,8 +163,12 @@ class FinanceApi {
   }
 
   buildFallbackComment(payload) {
-    const note = payload.comentarios ? `${payload.comentarios}\n` : '';
-    return `${note}Metodo: ${payload.metodo_pago || 'Sin metodo'} | Fijo: ${payload.es_fijo ? 'Si' : 'No'}`;
+    const parts = [
+      payload.comentarios || '',
+      `Metodo: ${payload.metodo_pago || 'Sin metodo'}`,
+      `Fijo: ${payload.es_fijo ? 'Si' : 'No'}`
+    ].filter(Boolean);
+    return parts.join(' | ');
   }
 }
 

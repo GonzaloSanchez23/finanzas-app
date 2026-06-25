@@ -1,8 +1,12 @@
 // Utilidades compartidas para UI, formato, fechas y catalogos base.
 const FinanceUtils = {
+  APP_NAME: 'CapitalFlow',
+  APP_TAGLINE: 'Tu dinero, tu control',
+
   COLORS: {
     primary: '#1a365d',
     secondary: '#2d5016',
+    action: '#10b981',
     neutral: '#f5f7fa',
     surface: '#ffffff',
     text: '#0f172a',
@@ -67,11 +71,15 @@ const FinanceUtils = {
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: 'MXN',
-      maximumFractionDigits: 2
-    }).format(Number(value) || 0);
+      maximumFractionDigits: 0
+    }).format(Math.round(Number(value) || 0));
   },
 
-  formatDate(value, options = { day: '2-digit', month: 'short', year: 'numeric' }) {
+  formatPrice(value) {
+    return Math.round(Number(value) || 0).toLocaleString('es-MX');
+  },
+
+  formatDate(value, options = { day: '2-digit', month: 'long', year: 'numeric' }) {
     if (!value) return '-';
     return new Date(`${value}T00:00:00`).toLocaleDateString('es-MX', options);
   },
@@ -89,10 +97,16 @@ const FinanceUtils = {
     return { year, month };
   },
 
+  getMonthName(month, year) {
+    const months = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return `${months[Number(month) - 1] || ''} ${year}`.trim();
+  },
+
   getFriendlyMonth(year, month) {
-    const date = new Date(year, month - 1, 1);
-    const label = date.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' });
-    return label.replace('.', '');
+    return this.getMonthName(month, year);
   },
 
   buildMonthsForYear(year) {
@@ -100,7 +114,7 @@ const FinanceUtils = {
       const month = index + 1;
       return {
         value: this.getMonthKey(year, month),
-        label: this.getFriendlyMonth(year, month)
+        label: this.getMonthName(month, year)
       };
     });
   },
@@ -117,7 +131,10 @@ const FinanceUtils = {
     return 'type-transferencia';
   },
 
-  getUserDisplayName(user) {
+  getUserDisplayName(user, profile = null) {
+    if (profile?.first_name || profile?.last_name) {
+      return `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+    }
     const metaName = user?.user_metadata?.full_name || user?.user_metadata?.name;
     if (metaName) return metaName;
     const localPart = String(user?.email || 'Usuario').split('@')[0];
@@ -148,7 +165,7 @@ const FinanceUtils = {
     }, 3000);
   },
 
-  showModal({ title, body, confirmText = 'Aceptar', cancelText = 'Cancelar', onConfirm }) {
+  showModal({ title, body, confirmText = 'Aceptar', cancelText = 'Cancelar', onConfirm, lock = false }) {
     const root = document.getElementById('modal-root');
     if (!root) return;
     root.innerHTML = `
@@ -157,19 +174,19 @@ const FinanceUtils = {
           <h3 id="modal-title">${this.escapeHtml(title)}</h3>
           <div class="modal-body">${body}</div>
           <div class="modal-actions">
-            <button class="button button-secondary" id="modal-cancel" type="button">${this.escapeHtml(cancelText)}</button>
+            ${lock ? '' : `<button class="button button-secondary" id="modal-cancel" type="button">${this.escapeHtml(cancelText)}</button>`}
             <button class="button button-primary" id="modal-confirm" type="button">${this.escapeHtml(confirmText)}</button>
           </div>
         </section>
       </div>
     `;
-    document.getElementById('modal-cancel').addEventListener('click', () => this.closeModal());
+    const cancel = document.getElementById('modal-cancel');
+    if (cancel) cancel.addEventListener('click', () => this.closeModal());
     document.getElementById('modal-confirm').addEventListener('click', async () => {
       await onConfirm?.();
-      this.closeModal();
     });
     document.querySelector('.modal').addEventListener('click', (event) => {
-      if (event.target.classList.contains('modal')) this.closeModal();
+      if (!lock && event.target.classList.contains('modal')) this.closeModal();
     });
   },
 

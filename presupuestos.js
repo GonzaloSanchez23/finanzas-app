@@ -67,7 +67,7 @@ class PresupuestosModule {
           <article class="budget-row">
             <div>
               <strong>${FinanceUtils.escapeHtml(budget.categoria)}</strong>
-              <span>${FinanceUtils.getFriendlyMonth(Number(budget.año), this.getBudgetMonthNumber(budget))}</span>
+              <span>${FinanceUtils.getMonthName(this.getBudgetMonthNumber(budget), Number(budget.año))}</span>
             </div>
             <div class="budget-amount">${FinanceUtils.formatMoney(budget.monto_limite)}</div>
             <div class="row-actions">
@@ -108,7 +108,7 @@ class PresupuestosModule {
           <label class="field-label" for="budget-month">Mes</label>
           <select id="budget-month" required>
             ${FinanceUtils.buildMonthsForYear(this.app.currentYear).map((month) => `
-              <option value="${month.value}" ${selectedMonth === month.value ? 'selected' : ''}>${month.value}</option>
+              <option value="${month.value}" ${selectedMonth === month.value ? 'selected' : ''}>${month.label}</option>
             `).join('')}
           </select>
           <span class="field-error" id="budget-month-error"></span>
